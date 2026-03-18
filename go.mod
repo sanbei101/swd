@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/pkg/errors v0.9.1
+	github.com/sanbei101/swd v1.0.1
 	github.com/sony/sonyflake v1.3.0
 	github.com/spf13/viper v1.21.0
 	go.uber.org/zap v1.27.1
