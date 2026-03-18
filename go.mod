@@ -1,1 +1,1 @@
-module github.com/sanbei/swd
+module github.com/sanbei101/swd
