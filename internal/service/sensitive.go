@@ -55,6 +55,28 @@ func NewSensitiveWordService(service *Service, sensitiveWordRepository repositor
 	if err != nil {
 		return nil, err
 	}
+	// 清空默认敏感词
+	err = detector.Clear()
+	if err != nil {
+		return nil, err
+	}
+	// 从数据库加载敏感词
+	words, err := sensitiveWordRepository.List(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	customWords := make(map[string]swd.Category, len(words))
+
+	// 合并相同词的分类
+	for _, word := range words {
+		customWords[word.Word] |= word.Type
+	}
+
+	if err := detector.LoadCustomWords(context.Background(), customWords); err != nil {
+		return nil, err
+	}
+
 	svc := &sensitiveWordService{
 		Service:    service,
 		repository: sensitiveWordRepository,

@@ -48,6 +48,7 @@ func TestSensitiveWordMatchAndReplace(t *testing.T) {
 	if resp.Matches[0].Word != "蠢猪" || resp.Matches[0].StartPos != 3 || resp.Matches[0].EndPos != 5 {
 		t.Fatalf("unexpected first match: %+v", resp.Matches[0])
 	}
+	t.Logf("Check result: %+v", resp)
 }
 
 func BenchmarkCheckSensitiveWords(b *testing.B) {
