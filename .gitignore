@@ -40,7 +40,7 @@
 # .idea/modules
 # *.iml
 # *.ipr
-
+/storage/*
 # CMake
 cmake-build-*/
 
