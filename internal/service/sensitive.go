@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	DefaultSensitiveWordType = 0
+	DefaultSensitiveWordType = swd.None
 )
 
 type CreateSensitiveWordInput struct {
@@ -55,32 +55,14 @@ func NewSensitiveWordService(service *Service, sensitiveWordRepository repositor
 	if err != nil {
 		return nil, err
 	}
-	// 清空默认敏感词
-	err = detector.Clear()
-	if err != nil {
-		return nil, err
-	}
-	// 从数据库加载敏感词
-	words, err := sensitiveWordRepository.List(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	customWords := make(map[string]swd.Category, len(words))
-
-	// 合并相同词的分类
-	for _, word := range words {
-		customWords[word.Word] |= word.Type
-	}
-
-	if err := detector.LoadCustomWords(context.Background(), customWords); err != nil {
-		return nil, err
-	}
 
 	svc := &sensitiveWordService{
 		Service:    service,
 		repository: sensitiveWordRepository,
 		swd:        detector,
+	}
+	if err := svc.reloadWords(context.Background()); err != nil {
+		return nil, err
 	}
 	return svc, nil
 }
@@ -107,6 +89,9 @@ func (s *sensitiveWordService) CreateWord(ctx context.Context, input CreateSensi
 	if err := s.repository.Create(ctx, entity); err != nil {
 		return nil, err
 	}
+	if err := s.reloadWords(ctx); err != nil {
+		return nil, err
+	}
 	return entity, nil
 }
 
@@ -127,6 +112,9 @@ func (s *sensitiveWordService) UpdateWord(ctx context.Context, id uint, input Up
 		}
 		return nil, err
 	}
+	if err := s.reloadWords(ctx); err != nil {
+		return nil, err
+	}
 	return s.repository.GetByID(ctx, id)
 }
 
@@ -135,6 +123,9 @@ func (s *sensitiveWordService) DeleteWord(ctx context.Context, id uint) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("sensitive word not found")
 		}
+		return err
+	}
+	if err := s.reloadWords(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -175,4 +166,26 @@ func normalizeSensitiveWordInput(word string, category swd.Category) (string, sw
 	}
 
 	return word, category, nil
+}
+
+func (s *sensitiveWordService) reloadWords(ctx context.Context) error {
+	if err := s.swd.Clear(); err != nil {
+		return err
+	}
+
+	words, err := s.repository.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	customWords := make(map[string]swd.Category, len(words))
+	for _, word := range words {
+		customWords[word.Word] |= word.Type
+	}
+
+	if len(customWords) == 0 {
+		return nil
+	}
+
+	return s.swd.LoadCustomWords(ctx, customWords)
 }
