@@ -33,7 +33,7 @@ func TestSensitiveWordMatchAndReplace(t *testing.T) {
 		t.Fatalf("Check failed: %v", err)
 	}
 
-	if !resp.Contains {
+	if !resp.Contain {
 		t.Fatalf("expected contains to be true")
 	}
 

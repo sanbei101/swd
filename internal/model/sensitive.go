@@ -1,11 +1,13 @@
 package model
 
-type SensitiveWord struct {
-	ID   uint   `gorm:"column:id;primaryKey;autoIncrement"`
-	Word string `gorm:"column:word;not null"`
-	Type string `gorm:"column:type;not null;default:'default'"`
+import "github.com/kirklin/go-swd"
+
+type Word struct {
+	ID   uint         `gorm:"column:id;primaryKey;autoIncrement"`
+	Word string       `gorm:"column:word;not null"`
+	Type swd.Category `gorm:"column:type;not null;type:int"`
 }
 
-func (SensitiveWord) TableName() string {
+func (Word) TableName() string {
 	return "sensitive_words"
 }

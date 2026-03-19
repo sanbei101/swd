@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kirklin/go-swd"
 
 	"swd-new/internal/service"
 	"swd-new/pkg/helper/resp"
@@ -21,13 +22,13 @@ type checkRequest struct {
 }
 
 type createSensitiveWordRequest struct {
-	Word string `json:"word" binding:"required"`
-	Type string `json:"type"`
+	Word string       `json:"word" binding:"required"`
+	Type swd.Category `json:"type"`
 }
 
 type updateSensitiveWordRequest struct {
-	Word string `json:"word" binding:"required"`
-	Type string `json:"type"`
+	Word string       `json:"word" binding:"required"`
+	Type swd.Category `json:"type"`
 }
 
 func NewSensitiveCheckHandler(handler *Handler, sensitiveWordService service.SensitiveWordService) *SensitiveCheckHandler {
@@ -75,7 +76,7 @@ func (h *SensitiveCheckHandler) CreateWord(ctx *gin.Context) {
 
 	word, err := h.sensitiveWordService.CreateWord(ctx.Request.Context(), service.CreateSensitiveWordInput{
 		Word: strings.TrimSpace(req.Word),
-		Type: strings.TrimSpace(req.Type),
+		Type: req.Type,
 	})
 	if err != nil {
 		resp.HandleError(ctx, http.StatusBadRequest, 400, err.Error(), nil)
@@ -100,7 +101,7 @@ func (h *SensitiveCheckHandler) UpdateWord(ctx *gin.Context) {
 
 	word, err := h.sensitiveWordService.UpdateWord(ctx.Request.Context(), id, service.UpdateSensitiveWordInput{
 		Word: strings.TrimSpace(req.Word),
-		Type: strings.TrimSpace(req.Type),
+		Type: req.Type,
 	})
 	if err != nil {
 		resp.HandleError(ctx, http.StatusBadRequest, 400, err.Error(), nil)
