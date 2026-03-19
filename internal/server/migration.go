@@ -10,6 +10,7 @@ import (
 	"swd-new/internal/model"
 	"swd-new/pkg/log"
 
+	"github.com/kirklin/go-swd"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
@@ -39,15 +40,15 @@ func (m *Migration) SyncSensitiveWordsFromAssets(ctx context.Context) error {
 		return fmt.Errorf("read assets dir: %w", err)
 	}
 
-	categoryByFile := map[string]model.Word{
-		"pornography.txt":    {Type: 1},
-		"political.txt":      {Type: 2},
-		"violence.txt":       {Type: 4},
-		"gambling.txt":       {Type: 8},
-		"drugs.txt":          {Type: 16},
-		"profanity.txt":      {Type: 32},
-		"discrimination.txt": {Type: 64},
-		"scam.txt":           {Type: 128},
+	categoryByFile := map[string]swd.Category{
+		"pornography.txt":    swd.Pornography,
+		"political.txt":      swd.Political,
+		"violence.txt":       swd.Violence,
+		"gambling.txt":       swd.Gambling,
+		"drugs.txt":          swd.Drugs,
+		"profanity.txt":      swd.Profanity,
+		"discrimination.txt": swd.Discrimination,
+		"scam.txt":           swd.Scam,
 	}
 
 	words := make([]model.Word, 0, 1024)
@@ -57,7 +58,7 @@ func (m *Migration) SyncSensitiveWordsFromAssets(ctx context.Context) error {
 			continue
 		}
 
-		baseWord, ok := categoryByFile[entry.Name()]
+		category, ok := categoryByFile[entry.Name()]
 		if !ok {
 			continue
 		}
@@ -77,7 +78,7 @@ func (m *Migration) SyncSensitiveWordsFromAssets(ctx context.Context) error {
 
 			words = append(words, model.Word{
 				Word: word,
-				Type: baseWord.Type,
+				Type: category,
 			})
 		}
 

@@ -17,6 +17,8 @@ import (
 
 var ServerSet = wire.NewSet(server.NewServerHTTP)
 
+var MigrationSet = wire.NewSet(server.NewMigration)
+
 var RepositorySet = wire.NewSet(
 	repository.NewRepository,
 	repository.NewSensitiveWordRepository,
@@ -38,5 +40,11 @@ func NewWire(*viper.Viper, *log.Logger) (*gin.Engine, func(), error) {
 		RepositorySet,
 		ServiceSet,
 		HandlerSet,
+	))
+}
+
+func NewMigrationWire(*viper.Viper, *log.Logger) (*server.Migration, func(), error) {
+	panic(wire.Build(
+		MigrationSet,
 	))
 }

@@ -37,9 +37,17 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*gin.Engine, func(), 
 	}, nil
 }
 
+func NewMigrationWire(viperViper *viper.Viper, logger *log.Logger) (*server.Migration, func(), error) {
+	migration := server.NewMigration(viperViper, logger)
+	return migration, func() {
+	}, nil
+}
+
 // wire.go:
 
 var ServerSet = wire.NewSet(server.NewServerHTTP)
+
+var MigrationSet = wire.NewSet(server.NewMigration)
 
 var RepositorySet = wire.NewSet(repository.NewRepository, repository.NewSensitiveWordRepository)
 
