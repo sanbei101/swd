@@ -9,7 +9,7 @@ security:
     key: 1234
 data:
   postgres:
-    dsn: host=10.10.77.121 port=5432 dbname=sensitive user=love_db_user password=love_db_user@UMF123 sslmode=disable
+    dsn: host=localhost port=5432 dbname=sanbei user=sanbei password=123456 sslmode=disable
   redis:
     addr: 127.0.0.1:6350
     password: ""
